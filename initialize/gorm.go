@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 	"redpacket/global"
+	"redpacket/model"
 	"regexp"
 	"strconv"
 	"time"
@@ -20,7 +21,7 @@ func Gorm() (db *gorm.DB) {
 	}), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "t_",
+			TablePrefix:   "rp_",
 			SingularTable: true,
 		},
 	})
@@ -35,7 +36,7 @@ func Gorm() (db *gorm.DB) {
 		//设置空闲连接的存活时间
 		lifetime := global.Config.ConnMaxLifetime
 		if ok, err := regexp.MatchString("^[0-9]+[s|m|h]{0,1}$", lifetime); err != nil || !ok {
-			global.LOG.Warn("use default ConnMaxIdleTime",zap.Any("err",err))
+			global.LOG.Warn("use default ConnMaxIdleTime", zap.Any("err", err))
 			mysqlDB.SetConnMaxIdleTime(global.CONN_MAX_IDLE_TIME)
 		} else {
 			var timeUnit time.Duration
@@ -61,11 +62,18 @@ func Gorm() (db *gorm.DB) {
 			mysqlDB.SetConnMaxIdleTime(time.Duration(n) * timeUnit)
 		}
 	}
-	InitSchemas()
+	InitSchemas(db)
 	return db
 }
 
 //初始化数据库表
-func InitSchemas()  {
-	global.LOG.Debug("开始初始化数据库表")
+func InitSchemas(db *gorm.DB) {
+	zap.S().Info("开始初始化数据库表")
+	db.AutoMigrate(
+		&model.User{},
+		&model.RedPacket{},
+		&model.TransferRecord{},
+		&model.GrabRedPacketRecord{},
+	)
+	zap.S().Info("数据库表初始化完成")
 }

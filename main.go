@@ -14,7 +14,7 @@ func stopCallback() {
 }
 
 func main() {
-	//1.初始化配置文件
+	//1.初始化配置文件ls
 	initialize.Config(global.CONFIG_PATH)
 	//2.初始化zap日志
 	global.LOG = initialize.Zap()
@@ -23,13 +23,13 @@ func main() {
 	//4.初始化gorm
 	global.DB = initialize.Gorm()
 	//5.初始化server
-	server := initialize.Server()
 	go func() {
-		server.Run(fmt.Sprintf("%s:%d",global.Config.Server.Host,global.Config.Server.Port))
+		//接收服务异常退出信息
+		signalChan := make(chan os.Signal)
+		signal.Notify(signalChan, os.Kill, os.Interrupt)
+		<-signalChan
+		stopCallback()
 	}()
-	//接收服务异常退出信息
-	signalChan := make(chan os.Signal)
-	signal.Notify(signalChan,os.Kill)
-	<-signalChan
-	stopCallback()
+	server := initialize.Server()
+	server.Run(fmt.Sprintf("%s:%d", global.Config.Server.Host, global.Config.Server.Port))
 }
