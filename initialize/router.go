@@ -5,8 +5,12 @@ import (
 	v1 "redpacket/router/v1"
 )
 
-func Router(group *gin.RouterGroup) {
-	v1Group := group.Group("v1")
-	v1.RouterGroups.UserRouterGroup.InitRouter(v1Group)
-	v1.RouterGroups.RedPacketRouterGroup.InitRedPacketRouter(v1Group)
+func Router() *gin.Engine {
+	router := gin.Default()
+	v1Group := router.Group("v1")
+	{
+		v1.RouterGroups.UserRouterGroup.InitRouter(v1Group)
+		v1.RouterGroups.RedPacketRouterGroup.InitRedPacketRouter(v1Group)
+	}
+	return router
 }
