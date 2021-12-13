@@ -12,6 +12,6 @@ func (*UserRouter) InitRouter(group *gin.RouterGroup) {
 	userRouterGroup := group.Group("user")
 	var userApi = v1.ApiGroups.UserApiGroup.UserApi
 	{
-		userRouterGroup.GET("test", userApi.Test)
+		userRouterGroup.GET("list", userApi.GetUserList)
 	}
 }
