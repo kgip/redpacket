@@ -17,7 +17,7 @@ func stopCallback() {
 
 func main() {
 	//1.初始化配置文件ls
-	initialize.Config(global.CONFIG_PATH)
+	initialize.Config(global.ConfigPath)
 	//2.初始化zap日志
 	global.LOG = initialize.Zap()
 	//3.初始化redis

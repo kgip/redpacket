@@ -1,8 +1,8 @@
 package common
 
 type Page struct {
-	Page  int         `json:"page"`
-	Limit int         `json:"limit"`
-	Total int         `json:"total"`
-	Data  interface{} `json:"data"`
+	Page  int         `form:"page";json:"page"`
+	Limit int         `form:"limit";json:"limit"`
+	Total int         `form:"total";json:"total"`
+	Data  interface{} `form:"data";json:"data"`
 }

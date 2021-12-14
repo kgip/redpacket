@@ -6,7 +6,7 @@ import (
 )
 
 type Base struct {
-	ID        uint           `gorm:"type:int(10);primaryKey;autoIncrement"`
+	ID        uint           `gorm:"AUTO_INCREMENT"`
 	CreatedAt time.Time      `gorm:"not null"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }

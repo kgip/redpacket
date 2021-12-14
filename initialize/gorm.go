@@ -37,7 +37,7 @@ func Gorm() (db *gorm.DB) {
 		lifetime := global.Config.ConnMaxLifetime
 		if ok, err := regexp.MatchString("^[0-9]+[s|m|h]{0,1}$", lifetime); err != nil || !ok {
 			global.LOG.Warn("use default ConnMaxIdleTime", zap.Any("err", err))
-			mysqlDB.SetConnMaxIdleTime(global.CONN_MAX_IDLE_TIME)
+			mysqlDB.SetConnMaxIdleTime(global.ConnMaxIdleTime)
 		} else {
 			var timeUnit time.Duration
 			n := -1
