@@ -36,6 +36,15 @@ func (mq *LocalMQ) trySendMessage(topic string, msg interface{}, expire time.Dur
 	return nil
 }
 
+func (mq *LocalMQ) handleError(msg interface{}, handler func(msg interface{})) {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Println(e)
+		}
+	}()
+	handler(msg)
+}
+
 func (mq *LocalMQ) SendMessage(topic string, msg interface{}, expire time.Duration) {
 	if queue := mq.trySendMessage(topic, msg, expire); queue == nil {
 		mq.lock.Lock()
@@ -45,15 +54,6 @@ func (mq *LocalMQ) SendMessage(topic string, msg interface{}, expire time.Durati
 			mq.msgGroups[topic] = queue
 		}
 	}
-}
-
-func (mq *LocalMQ) handleError(msg interface{}, handler func(msg interface{})) {
-	defer func() {
-		if e := recover(); e != nil {
-			log.Println(e)
-		}
-	}()
-	handler(msg)
 }
 
 func (mq *LocalMQ) RegistryMessageHandler(topic string, handler func(msg interface{})) (error error) {
