@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 	"redpacket/global"
-	"redpacket/model"
+	"redpacket/model/po"
 	"regexp"
 	"strconv"
 	"time"
@@ -70,10 +70,10 @@ func Gorm() (db *gorm.DB) {
 func InitSchemas(db *gorm.DB) {
 	zap.S().Info("开始初始化数据库表")
 	db.AutoMigrate(
-		&model.User{},
-		&model.RedPacket{},
-		&model.TransferRecord{},
-		&model.GrabRedPacketRecord{},
+		&po.User{},
+		&po.RedPacket{},
+		&po.TransferRecord{},
+		&po.GrabRedPacketRecord{},
 	)
 	zap.S().Info("数据库表初始化完成")
 }

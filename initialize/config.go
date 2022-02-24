@@ -14,6 +14,7 @@ func Config(path string) {
 	viper.SetConfigFile(path)
 	viper.SetConfigType("yaml")
 	if err := viper.ReadInConfig(); err != nil {
+		log.Println(err.Error())
 		log.Panic("initialize config failed")
 	}
 	viper.OnConfigChange(func(e fsnotify.Event) {

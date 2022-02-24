@@ -1,4 +1,4 @@
-package model
+package po
 
 // RedPacket 用户发的红包记录
 type RedPacket struct {

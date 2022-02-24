@@ -8,7 +8,9 @@ import (
 
 func Router() *gin.Engine {
 	router := gin.Default()
-	v1Group := router.Group("v1")
+	group := router.Group("redpacket")
+
+	v1Group := group.Group("v1")
 	v1Group.Use(middleware.ErrorHandler)
 	{
 		v1.RouterGroups.UserRouterGroup.InitRouter(v1Group)

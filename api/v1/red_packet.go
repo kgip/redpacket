@@ -1,11 +1,13 @@
-package red_packet
+package v1
 
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"redpacket/service"
 )
 
 type RedPacketApi struct {
+	RedPacketService service.RedPacketService
 }
 
 func (*RedPacketApi) Test(c *gin.Context) {

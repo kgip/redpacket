@@ -1,11 +1,11 @@
-package user
+package impl
 
 import (
 	"redpacket/exception"
 	"redpacket/global"
-	"redpacket/model"
 	"redpacket/model/common"
-	"redpacket/model/response"
+	"redpacket/model/po"
+	"redpacket/model/vo"
 	"redpacket/utils"
 )
 
@@ -13,7 +13,7 @@ type UserService struct {
 }
 
 func (*UserService) GetUserList(page *common.Page) *common.Page {
-	list := make([]*model.User, page.Limit)
+	list := make([]*po.User, page.Limit)
 	var total int64
 	if page.Page == 0 {
 		exception.TryThrow(global.DB.Find(&list).Error)
@@ -22,9 +22,9 @@ func (*UserService) GetUserList(page *common.Page) *common.Page {
 		exception.TryThrow(global.DB.Offset((page.Page - 1) * page.Limit).Limit(page.Limit).Find(&list).Error)
 		exception.TryThrow(global.DB.Count(&total).Error)
 	}
-	userVoList := make([]*response.UserVo, len(list))
+	userVoList := make([]*vo.UserVo, len(list))
 	for i, user := range list {
-		userVo := &response.UserVo{}
+		userVo := &vo.UserVo{}
 		utils.BeanCopy(user, userVo)
 		userVo.CreatedAt = common.JSONTime(user.CreatedAt)
 		userVoList[i] = userVo
@@ -32,4 +32,20 @@ func (*UserService) GetUserList(page *common.Page) *common.Page {
 	page.Total = int(total)
 	page.Data = userVoList
 	return page
+}
+
+func (*UserService) AddUsers(users []*po.User) bool {
+	if len(users) >= 0 {
+		exception.TryThrow(global.DB.CreateInBatches(users, len(users)).Error)
+	}
+	return true
+}
+
+func (*UserService) DeleteUserById(id int) bool {
+	exception.TryThrow(global.DB.Delete(&po.User{}, id).Error)
+	return true
+}
+
+func (*UserService) UserTest() bool {
+	return true
 }

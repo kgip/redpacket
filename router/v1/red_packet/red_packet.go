@@ -3,6 +3,7 @@ package red_packet
 import (
 	"github.com/gin-gonic/gin"
 	v1 "redpacket/api/v1"
+	"redpacket/global/service"
 )
 
 type RedPacketRouter struct {
@@ -10,7 +11,7 @@ type RedPacketRouter struct {
 
 func (*RedPacketRouter) InitRedPacketRouter(group *gin.RouterGroup) {
 	redPacketRouterGroup := group.Group("redpacket")
-	redPacketApi := v1.ApiGroups.RedPacketApiGroup.RedPacketApi
+	redPacketApi := &v1.RedPacketApi{RedPacketService: service.RedPacketService}
 	{
 		redPacketRouterGroup.GET("test", redPacketApi.Test)
 	}
