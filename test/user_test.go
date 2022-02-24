@@ -8,6 +8,7 @@ import (
 	"redpacket/initialize"
 	"redpacket/model/po"
 	"redpacket/service/impl"
+	"redpacket/utils/mq"
 	"testing"
 	"time"
 )
@@ -43,4 +44,13 @@ func TestRedisLock(t *testing.T) {
 		time.Sleep(3 * time.Second)
 	}
 	lockOperator.Unlock(key)
+}
+
+func TestLocalMQ(t *testing.T) {
+	mqOperator := mq.NewLocalMQ()
+	mqOperator.SendMessage("topic1", "aaa", 3*time.Second)
+	mqOperator.RegistryMessageHandler("topic1", func(msg interface{}) {
+		t.Log(msg)
+	})
+	time.Sleep(10 * time.Second)
 }

@@ -27,10 +27,14 @@ func NewLocalMQ() *LocalMQ {
 
 func (mq *LocalMQ) trySendMessage(topic string, msg interface{}, expire time.Duration) chan interface{} {
 	if queue, ok := mq.msgGroups[topic]; ok && queue != nil {
-		go func() {
-			<-time.NewTimer(expire).C
+		if expire <= 0 {
 			queue <- msg
-		}()
+		} else {
+			go func() {
+				<-time.NewTimer(expire).C
+				queue <- msg
+			}()
+		}
 		return queue
 	}
 	return nil
@@ -50,8 +54,9 @@ func (mq *LocalMQ) SendMessage(topic string, msg interface{}, expire time.Durati
 		mq.lock.Lock()
 		defer mq.lock.Unlock()
 		if queue = mq.trySendMessage(topic, msg, expire); queue == nil {
-			queue = make(chan interface{})
+			queue = make(chan interface{}, 100)
 			mq.msgGroups[topic] = queue
+			queue <- msg
 		}
 	}
 }
