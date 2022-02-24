@@ -1,7 +1,6 @@
 package initialize
 
 import (
-	"fmt"
 	"os"
 	"redpacket/global"
 	"time"
@@ -13,10 +12,10 @@ import (
 var level zapcore.Level
 
 func Zap() (logger *zap.Logger) {
-	if info, err := os.Stat(global.Config.Zap.Director); err != nil && os.IsNotExist(err) || !info.IsDir() { // 目录不存在则创建目录
-		fmt.Printf("create %v directory\n", global.Config.Zap.Director)
-		_ = os.Mkdir(global.Config.Zap.Director, os.ModePerm)
-	}
+	//if info, err := os.Stat(global.Config.Zap.Director); err != nil && os.IsNotExist(err) || !info.IsDir() { // 目录不存在则创建目录
+	//	fmt.Printf("create %v directory\n", global.Config.Zap.Director)
+	//	_ = os.Mkdir(global.Config.Zap.Director, os.ModePerm)
+	//}
 
 	switch global.Config.Zap.Level { // 初始化配置文件的Level
 	case "debug":
