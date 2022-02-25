@@ -1,13 +1,18 @@
 package test
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/kgip/redis-lock/adapters"
 	"github.com/kgip/redis-lock/lock"
+	"redpacket/ex"
 	"redpacket/global"
 	"redpacket/initialize"
+	"redpacket/model/common"
 	"redpacket/model/po"
+	"redpacket/model/vo"
 	"redpacket/service/impl"
+	"redpacket/utils"
 	"redpacket/utils/mq"
 	"testing"
 	"time"
@@ -53,4 +58,22 @@ func TestLocalMQ(t *testing.T) {
 		t.Log(msg)
 	})
 	time.Sleep(10 * time.Second)
+}
+
+func TestEx(t *testing.T) {
+	//var e interface{} = ex.InternalException
+	//if _, ok := e.(*ex.Exception); ok {
+	//	t.Log("ok")
+	//} else {
+	//	t.Error("error")
+	//}
+	bytes, _ := json.Marshal(ex.InternalException)
+	t.Log(string(bytes))
+}
+
+func TestCopy(t *testing.T) {
+	user := &po.User{Base: po.Base{ID: 1, CreatedAt: time.Now()}, Username: "", Balance: 1111}
+	userVo := &vo.UserVo{CreatedAt: common.JSONTime(user.CreatedAt)}
+	utils.BeanCopy(user, userVo, "CreatedAt")
+	t.Log(userVo)
 }

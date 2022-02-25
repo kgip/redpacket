@@ -1,10 +1,10 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"redpacket/global"
+	"redpacket/ex"
 	"redpacket/model/common"
+	"redpacket/model/vo"
 	"redpacket/service"
 )
 
@@ -14,18 +14,14 @@ type UserApi struct {
 
 func (u *UserApi) GetUserList(c *gin.Context) {
 	page := &common.Page{}
-	c.ShouldBind(page)
-	page2 := &common.Page{}
-	if err := c.ShouldBind(page2); err != nil {
-		fmt.Println(err)
-	}
+	ex.TryThrow(c.ShouldBind(page), ex.RequestParamsException)
 	page = u.UserService.GetUserList(page)
 	common.OkWithData(page, c)
 }
 
-func (u *UserApi) UserTest(c *gin.Context) {
-	if u.UserService.UserTest() {
-		global.LOG.Info("gin单元测试")
-	}
+func (u *UserApi) AddUser(c *gin.Context) {
+	userVo := &vo.UserAddVo{}
+	ex.TryThrow(c.ShouldBind(userVo), ex.RequestParamsException)
+	u.UserService.AddUser(userVo)
 	common.Ok(c)
 }

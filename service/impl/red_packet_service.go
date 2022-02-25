@@ -1,10 +1,11 @@
 package impl
 
-import "redpacket/model/po"
+import (
+	"redpacket/model/vo"
+)
 
-type RedPacketSerivce struct {
-}
+type RedPacketService struct{}
 
-func (*RedPacketSerivce) List() []*po.RedPacket {
-	return nil
+func (*RedPacketService) SendPacket(vo *vo.SendPacketVo) {
+
 }

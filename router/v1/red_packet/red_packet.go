@@ -6,13 +6,13 @@ import (
 	"redpacket/global/service"
 )
 
-type RedPacketRouter struct {
-}
+type RedPacketRouter struct{}
 
 func (*RedPacketRouter) InitRedPacketRouter(group *gin.RouterGroup) {
 	redPacketRouterGroup := group.Group("redpacket")
 	redPacketApi := &v1.RedPacketApi{RedPacketService: service.RedPacketService}
 	{
-		redPacketRouterGroup.GET("test", redPacketApi.Test)
+		redPacketRouterGroup.POST("send", redPacketApi.SendPacket)
+		redPacketRouterGroup.POST("grab", redPacketApi.GrabPacket)
 	}
 }

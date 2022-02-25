@@ -2,7 +2,9 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"redpacket/ex"
+	"redpacket/model/common"
+	"redpacket/model/vo"
 	"redpacket/service"
 )
 
@@ -10,9 +12,13 @@ type RedPacketApi struct {
 	RedPacketService service.RedPacketService
 }
 
-func (*RedPacketApi) Test(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"code": http.StatusOK,
-		"msg":  "ok",
-	})
+func (r *RedPacketApi) SendPacket(c *gin.Context) {
+	packetVo := &vo.SendPacketVo{}
+	ex.TryThrow(c.ShouldBind(packetVo), ex.RequestParamsException)
+	r.RedPacketService.SendPacket(packetVo)
+	common.Ok(c)
+}
+
+func (r *RedPacketApi) GrabPacket(c *gin.Context) {
+
 }

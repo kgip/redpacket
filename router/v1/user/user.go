@@ -6,14 +6,13 @@ import (
 	"redpacket/global/service"
 )
 
-type UserRouter struct {
-}
+type UserRouter struct{}
 
 func (*UserRouter) InitRouter(group *gin.RouterGroup) {
 	userRouterGroup := group.Group("user")
 	var userApi = &v1.UserApi{UserService: service.UserService}
 	{
-		userRouterGroup.POST("list", userApi.GetUserList)
-		userRouterGroup.GET("test", userApi.UserTest)
+		userRouterGroup.GET("list", userApi.GetUserList)
+		userRouterGroup.POST("", userApi.AddUser)
 	}
 }

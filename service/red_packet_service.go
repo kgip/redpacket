@@ -1,7 +1,9 @@
 package service
 
-import "redpacket/model/po"
+import (
+	"redpacket/model/vo"
+)
 
 type RedPacketService interface {
-	List() []*po.RedPacket
+	SendPacket(vo *vo.SendPacketVo)
 }

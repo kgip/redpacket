@@ -7,5 +7,5 @@ import (
 
 func Service() {
 	service.UserService = &impl.UserService{}
-	service.RedPacketService = &impl.RedPacketSerivce{}
+	service.RedPacketService = &impl.RedPacketService{}
 }
