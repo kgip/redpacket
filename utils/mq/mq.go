@@ -17,8 +17,8 @@ const (
 )
 
 type MqOperator interface {
-	SendMessage(topic string, msg interface{}, expire time.Duration)
-	RegistryMessageHandler(topic string, handler func(msg interface{})) (error error)
+	SendMessage(topic string, msg interface{}, expire time.Duration) (err error)
+	RegistryMessageHandler(topics []string, handler func(msg interface{})) (error error)
 }
 
 type LocalMQ struct {

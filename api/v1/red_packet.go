@@ -15,7 +15,8 @@ type RedPacketApi struct {
 func (r *RedPacketApi) SendPacket(c *gin.Context) {
 	packetVo := &vo.SendPacketVo{}
 	ex.TryThrow(c.ShouldBind(packetVo), ex.RequestParamsException)
-	r.RedPacketService.SendPacket(packetVo)
+	id, _ := c.Get("userId")
+	r.RedPacketService.SendPacket(packetVo, id)
 	common.Ok(c)
 }
 

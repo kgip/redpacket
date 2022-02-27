@@ -27,9 +27,11 @@ func main() {
 	global.LockOperator = lock.NewRedisLockOperator(adapters.NewGoRedisV8Adapter(global.Redis))
 	//4.初始化gorm
 	global.DB = initialize.Gorm()
-	//5.初始化service层对象
+	//5.初始化本地MQ
+	global.MQ = initialize.MQ()
+	//6.初始化service层对象
 	initialize.Service()
-	//6.初始化server
+	//7.初始化server
 	go func() {
 		//接收服务异常退出信息
 		signalChan := make(chan os.Signal)

@@ -5,5 +5,5 @@ import (
 )
 
 type RedPacketService interface {
-	SendPacket(vo *vo.SendPacketVo)
+	SendPacket(vo *vo.SendPacketVo, id interface{})
 }

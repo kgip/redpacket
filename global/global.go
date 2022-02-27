@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"redpacket/config"
+	"redpacket/utils/mq"
 )
 
 var (
@@ -14,4 +15,5 @@ var (
 	LOG          *zap.Logger
 	Redis        *redis.Client
 	LockOperator *lock.RedisLockOperator //redis分布式锁
+	MQ           mq.MqOperator
 )
