@@ -35,12 +35,12 @@ func (r *RedPacketService) SendPacket(vo *vo.SendPacketVo, id interface{}) {
 				ExpireAt:    time.Now().AddDate(0, 0, 7), //红包过期时间为7天
 			}
 			ex.HandleDbError(tx.Create(redpacket))
-			//4.在redis中保存红包记录
+			//4.发送定时消息到本地消息队列，红包过期后返还剩余金额
+			ex.TryThrow(global.MQ.SendMessage(constant.ReturnRedPacketBalanceTopic, redpacket.ID, time.Hour*24*7))
+			//5.在redis中保存红包记录
 			r.addRedPacketToRedisHSet(redpacket.ID, redpacket.Count, redpacket.Balance)
-			//5.发送定时消息到本地消息队列，红包过期后返还剩余金额
-			global.MQ.SendMessage(constant.ReturnRedPacketBalanceTopic, redpacket.ID, time.Hour*24*7)
 		} else {
-			return ex.InsufficientBalance
+			return ex.InsufficientBalanceException
 		}
 		return
 	}))

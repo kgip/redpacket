@@ -76,9 +76,9 @@ func (e *Exception) DetailInfo() string {
 }
 
 var (
-	InternalException      = &Exception{50000, "Server Internal Error!", "", ""}
-	DBException            = &Exception{50001, "Database operation exception!", "", ""}
-	RequestParamsException = &Exception{50002, "Request Params Error!", "", ""}
-	LoginException         = &Exception{50003, "User login info Error!", "", ""}
-	InsufficientBalance    = &Exception{50004, "Insufficient user balance!", "", ""}
+	InternalException            = &Exception{50000, "Server Internal Error!", "", ""}
+	DBException                  = &Exception{50001, "Database operation exception!", "", ""}
+	RequestParamsException       = &Exception{50002, "Request Params Error!", "", ""}
+	LoginException               = &Exception{50003, "User login info Error!", "", ""}
+	InsufficientBalanceException = &Exception{50004, "Insufficient user balance!", "", ""}
 )
