@@ -5,4 +5,5 @@ const (
 	RedPacketHSetCountField       = "count"
 	RedPacketHSetBalanceField     = "balance"
 	GrabRedPacketUserSetKeyPrefix = RedPacketKeyPrefix + "users:"
+	RedPacketLockKeyPrefix        = "redpacket:"
 )

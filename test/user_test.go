@@ -1,8 +1,10 @@
 package test
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/go-redis/redis/v8"
 	"github.com/kgip/redis-lock/adapters"
 	"github.com/kgip/redis-lock/lock"
 	"redpacket/ex"
@@ -52,9 +54,9 @@ func TestRedisLock(t *testing.T) {
 }
 
 func TestLocalMQ(t *testing.T) {
-	mqOperator := mq.NewLocalMQ()
+	mqOperator := mq.NewLocalMQ().AddQueue("topic1", 1000)
 	mqOperator.SendMessage("topic1", "aaa", 3*time.Second)
-	mqOperator.RegistryMessageHandler("topic1", func(msg interface{}) {
+	mqOperator.RegistryMessageHandler([]string{"topic1"}, func(msg interface{}) {
 		t.Log(msg)
 	})
 	time.Sleep(10 * time.Second)
@@ -76,4 +78,9 @@ func TestCopy(t *testing.T) {
 	userVo := &vo.UserVo{CreatedAt: common.JSONTime(user.CreatedAt)}
 	utils.BeanCopy(user, userVo, "CreatedAt")
 	t.Log(userVo)
+}
+
+func TestRedisDel(t *testing.T) {
+	global.Redis.Set(context.Background(), "aaa", 1, redis.KeepTTL)
+	t.Log(global.Redis.Del(context.Background(), "aaaa").Result())
 }

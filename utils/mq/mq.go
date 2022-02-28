@@ -53,9 +53,11 @@ func (mq *LocalMQ) AddDefaultSizeQueue(topic string) *LocalMQ {
 	return mq.AddQueue(topic, defaultQueueSize)
 }
 
-func (mq *LocalMQ) handleError(msg interface{}, handler func(msg interface{})) {
+func (mq *LocalMQ) handleError(topic string, msg interface{}, handler func(msg interface{})) {
 	defer func() {
 		if e := recover(); e != nil {
+			time.Sleep(3 * time.Second)
+			mq.queues[topic] <- msg //处理失败时重回队列
 			log.Println(e)
 		}
 	}()
@@ -68,7 +70,7 @@ func (mq *LocalMQ) SendMessage(topic string, msg interface{}, expire time.Durati
 			queue <- msg
 		} else {
 			go func() {
-				<-time.NewTimer(expire).C
+				time.Sleep(expire)
 				queue <- msg
 			}()
 		}
@@ -83,7 +85,7 @@ func (mq *LocalMQ) RegistryMessageHandler(topics []string, handler func(msg inte
 		if queue, ok := mq.queues[topic]; ok && queue != nil {
 			go func() {
 				for msg := range queue {
-					mq.handleError(msg, handler)
+					mq.handleError(topic, msg, handler)
 				}
 			}()
 			return
