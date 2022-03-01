@@ -54,13 +54,15 @@ type Exception struct {
 }
 
 func (e *Exception) SetCause(cause string) *Exception {
-	e.Cause = cause
-	return e
+	returnEx := *e
+	returnEx.Cause = cause
+	return &returnEx
 }
 
 func (e *Exception) SetDetail(detail string) *Exception {
-	e.Detail = detail
-	return e
+	returnEx := *e
+	returnEx.Detail = detail
+	return &returnEx
 }
 
 func (e *Exception) Error() string {
@@ -81,4 +83,6 @@ var (
 	RequestParamsException       = &Exception{50002, "Request Params Error!", "", ""}
 	LoginException               = &Exception{50003, "User login info Error!", "", ""}
 	InsufficientBalanceException = &Exception{50004, "Insufficient user balance!", "", ""}
+	PacketIsEmptyException       = &Exception{50005, "The red envelope has been robbed!", "", ""}
+	PacketIsExpireException      = &Exception{50006, "The red envelope has been expired!", "", ""}
 )

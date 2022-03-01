@@ -84,3 +84,15 @@ func TestRedisDel(t *testing.T) {
 	global.Redis.Set(context.Background(), "aaa", 1, redis.KeepTTL)
 	t.Log(global.Redis.Del(context.Background(), "aaaa").Result())
 }
+
+func TestPtr(t *testing.T) {
+	t.Logf("%p", ex.InternalException)
+	t.Logf("%p", ex.InternalException.SetDetail("aaa"))
+}
+
+func TestRedisZSet(t *testing.T) {
+	t.Log(global.Redis.ZRangeWithScores(context.Background(), "test", 0, -1).Result())
+	result, err := global.Redis.ZRank(context.Background(), "test", "ccc").Result()
+	t.Log(err)
+	t.Log(result)
+}
