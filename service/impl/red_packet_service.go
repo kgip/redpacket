@@ -39,7 +39,7 @@ func (r *RedPacketService) SendPacket(vo *vo.SendPacketVo, id uint) {
 			//4.发送定时消息到本地消息队列，红包过期后返还剩余金额
 			ex.TryThrow(global.MQ.SendMessage(constant.ReturnRedPacketBalanceTopic, redpacket.ID, constant.RedPacketExpireDuration))
 			//5.在redis中保存红包记录
-			r.addRedPacketToRedisHSet(redpacket.ID, redpacket.Count, redpacket.Balance)
+			r.addRedPacketToRedis(redpacket.ID, redpacket.Count, redpacket.Balance)
 		} else {
 			return ex.InsufficientBalanceException
 		}
@@ -47,42 +47,35 @@ func (r *RedPacketService) SendPacket(vo *vo.SendPacketVo, id uint) {
 	}))
 }
 
-func (*RedPacketService) addRedPacketToRedisHSet(id, count uint, balance float64) {
+func (*RedPacketService) addRedPacketToRedis(id, count uint, balance float64) {
 	key := fmt.Sprintf("%s%d", constant.RedPacketKeyPrefix, id)
-	ex.TryThrow(global.Redis.HMSet(context.Background(), key, map[string]interface{}{
-		constant.RedPacketHSetCountField:   count,
-		constant.RedPacketHSetBalanceField: balance,
-	}).Err())
-	global.Redis.Expire(context.Background(), key, constant.RedPacketExpireDuration)
+	redPackets := utils.GenericRedPackets(count, balance)
+	ex.TryThrow(global.Redis.RPush(context.Background(), key, redPackets...).Err())
 }
 
-// GrabPacket todo 方案性能比较：1.直接加锁操作 2.使用双重检查锁操作
 func (r *RedPacketService) GrabPacket(id, userId uint) {
-	//1.检查包是否为空
-	r.isRedPacketEmpty(id)
+	key := fmt.Sprintf("%s%d", constant.GrabRedPacketUserSetKeyPrefix, id)
+	//加分布式锁
 	lockKey := fmt.Sprintf("%s%d", constant.RedPacketLockKeyPrefix, id)
 	global.LockOperator.Lock(lockKey, lock.Context())
 	defer global.LockOperator.Unlock(lockKey)
-	//2.再次检查包是否为空
-	userCount, count := r.isRedPacketEmpty(id)
+
+	//todo lua脚本
+	//检查用户是否已经抢过红包
+	if _, err := global.Redis.ZRank(context.Background(), key, fmt.Sprintf("%d", userId)).Result(); err == nil {
+		panic(ex.RepeatGrabRedPacketException)
+	}
+	//redis List中获取红包
+	strAmount, err := global.Redis.LPop(context.Background(), fmt.Sprintf("%s%d", constant.RedPacketKeyPrefix, id)).Result()
+
+	ex.TryThrow(err, ex.PacketIsEmptyException)
+	grabBalance, err := strconv.ParseFloat(strAmount, 64)
+	ex.TryThrow(err)
 	var rpRecordCount int64
 	//防止redis记录删除失败，检查数据库中的红包记录看红包是否过期
 	if global.DB.Model(po.RedPacketModel).Where("id = ? and is_expire = ?", id, 0).Count(&rpRecordCount); rpRecordCount <= 0 {
 		panic(ex.PacketIsExpireException)
 	}
-	//红包不为空
-	//3.获取红包余额
-	strBalance, err := global.Redis.HGet(context.Background(), fmt.Sprintf("%s%d", constant.RedPacketKeyPrefix, id), constant.RedPacketHSetBalanceField).Result()
-	ex.TryThrow(err)
-	balance, err := strconv.ParseFloat(strBalance, 64)
-	ex.TryThrow(err)
-	var grabBalance = balance //用户抢到的红包金额
-	ex.TryThrow(err)
-	//如果不是最后一个红包，需要计算红包金额
-	if count > userCount+1 {
-		grabBalance = utils.CalculateRedPacketBalance(count-userCount, balance)
-	}
-
 	//保存红包记录，并转账给用户
 	ex.TryThrow(global.DB.Transaction(func(tx *gorm.DB) error {
 		//插入抢红包记录
@@ -91,28 +84,7 @@ func (r *RedPacketService) GrabPacket(id, userId uint) {
 		ex.TryThrow(ex.HandleDbError(tx.Model(po.UserModel).Where("id = ?", userId).Update("balance", gorm.Expr("balance + ?", grabBalance))))
 		ex.TryThrow(ex.HandleDbError(tx.Create(&po.TransferRecord{SenderId: 00000, ReceiverId: userId, Amount: grabBalance})))
 		//在redis中保存抢红包相关信息
-		ex.TryThrow(global.Redis.ZAdd(context.Background(), fmt.Sprintf("%s%d", constant.GrabRedPacketUserSetKeyPrefix, id), &redis.Z{Member: userId, Score: grabBalance}).Err())
-		ex.TryThrow(global.Redis.HSet(context.Background(), fmt.Sprintf("%s%d", constant.RedPacketKeyPrefix, id), map[string]interface{}{
-			constant.RedPacketHSetBalanceField: balance - grabBalance,
-		}).Err())
+		ex.TryThrow(global.Redis.ZAdd(context.Background(), key, &redis.Z{Member: userId, Score: grabBalance}).Err())
 		return nil
 	}))
-}
-
-//判断红包是否为空，如果不为空，返回已经抢红包的人数和红包总数
-func (*RedPacketService) isRedPacketEmpty(redPacketId uint) (userCount, redPacketCount int64) {
-	if r := global.Redis.HGet(context.Background(), fmt.Sprintf("%s%d", constant.RedPacketKeyPrefix, redPacketId), constant.RedPacketHSetCountField); r.Err() != nil {
-		panic(r.Err())
-	} else {
-		strCount, _ := r.Result()
-		count, err := strconv.ParseInt(strCount, 10, 64)
-		ex.TryThrow(err)
-		//2.检查红包是否已经被抢完
-		if userCount, err = global.Redis.ZCard(context.Background(), fmt.Sprintf("%s%d", constant.GrabRedPacketUserSetKeyPrefix, redPacketId)).Result(); err != nil {
-			panic(err)
-		} else if userCount >= count {
-			panic(ex.PacketIsEmptyException)
-		}
-		return userCount, count
-	}
 }

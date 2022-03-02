@@ -19,9 +19,9 @@ var returnExpireRedPacketBalance = func(msg interface{}) {
 	if err := global.Redis.Del(context.Background(), fmt.Sprintf("%s%d", constant.RedPacketKeyPrefix, redPacketId)).Err(); err != nil {
 		global.LOG.Error(err.Error())
 	}
-	if err := global.Redis.Del(context.Background(), fmt.Sprintf("%s%d", constant.GrabRedPacketUserSetKeyPrefix, redPacketId)).Err(); err != nil {
-		global.LOG.Error(err.Error())
-	}
+	//if err := global.Redis.Del(context.Background(), fmt.Sprintf("%s%d", constant.GrabRedPacketUserSetKeyPrefix, redPacketId)).Err(); err != nil {
+	//	global.LOG.Error(err.Error())
+	//}
 
 	lockKey := fmt.Sprintf("%s%d", constant.RedPacketLockKeyPrefix, redPacketId)
 	global.LockOperator.Lock(lockKey, lock.Context())

@@ -85,4 +85,6 @@ var (
 	InsufficientBalanceException = &Exception{50004, "Insufficient user balance!", "", ""}
 	PacketIsEmptyException       = &Exception{50005, "The red envelope has been robbed!", "", ""}
 	PacketIsExpireException      = &Exception{50006, "The red envelope has been expired!", "", ""}
+	GenericRedPacketException    = &Exception{50007, "Failed to generate red envelope. Please Retry!", "", ""}
+	RepeatGrabRedPacketException = &Exception{50008, "Repeated grab red envelopes!", "", ""}
 )

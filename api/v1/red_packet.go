@@ -32,3 +32,7 @@ func (r *RedPacketApi) GrabPacket(c *gin.Context) {
 	r.RedPacketService.GrabPacket(idVo.Id, uint(intUserId))
 	common.Ok(c)
 }
+
+func (r *RedPacketApi) GetGrabRedPacketLeaderboard(c *gin.Context) {
+
+}

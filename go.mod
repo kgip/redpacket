@@ -10,6 +10,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/viper v1.8.1
 	go.uber.org/zap v1.17.0
 	golang.org/x/crypto v0.0.0-20210920023735-84f357641f63 // indirect

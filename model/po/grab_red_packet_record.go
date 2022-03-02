@@ -7,5 +7,5 @@ type GrabRedPacketRecord struct {
 	Base
 	RedPacketId uint    `gorm:"type:int(10);not null;index:redpacket_user_idx"`
 	UserId      uint    `gorm:"type:int(10);not null;index:redpacket_user_idx"`
-	Amount      float64 `gorm:"not null;default 0"`
+	Amount      float64 `gorm:"type:decimal(10,2);not null;default 0.00"`
 }

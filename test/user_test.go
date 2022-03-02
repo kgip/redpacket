@@ -7,6 +7,8 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/kgip/redis-lock/adapters"
 	"github.com/kgip/redis-lock/lock"
+	"github.com/shopspring/decimal"
+	"math/rand"
 	"redpacket/ex"
 	"redpacket/global"
 	"redpacket/initialize"
@@ -27,10 +29,10 @@ func init() {
 	initialize.Config(fmt.Sprintf("../%s", global.ConfigPath))
 	////2.初始化zap日志
 	global.LOG = initialize.Zap()
-	//
-	global.DB = initialize.Gorm()
+	////
+	//global.DB = initialize.Gorm()
 
-	global.Redis = initialize.Redis()
+	//global.Redis = initialize.Redis()
 }
 
 func TestAddUser(t *testing.T) {
@@ -95,4 +97,42 @@ func TestRedisZSet(t *testing.T) {
 	result, err := global.Redis.ZRank(context.Background(), "test", "ccc").Result()
 	t.Log(err)
 	t.Log(result)
+}
+
+func TestRedisList(t *testing.T) {
+	global.Redis.RPush(context.Background(), "testList", 111)
+	for i := 0; i < 5; i++ {
+		t.Log(global.Redis.LPop(context.Background(), "testList").Result())
+	}
+	global.Redis.Del(context.Background(), "testList")
+	for i := 0; i < 5; i++ {
+		t.Log(global.Redis.LPop(context.Background(), "testList").Result())
+	}
+}
+
+func TestRand(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
+	for i := 0; i < 10; i++ {
+		t.Log(rand.Intn(10))
+		t.Log(rand.Float64())
+	}
+}
+
+func TestGenericRedPacket(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		packets := utils.GenericRedPackets(13, 10)
+		t.Log(packets)
+		var total float64 = 0
+		for _, balance := range packets {
+			total += balance.(float64)
+		}
+		t.Log(total)
+		time.Sleep(time.Second)
+	}
+}
+
+func TestDecimal(t *testing.T) {
+	f := decimal.NewFromFloat(1.0101)
+	t.Log(f.Add(decimal.NewFromInt(1)).RoundDown(2).Float64())
+	t.Log(f.Float64())
 }
