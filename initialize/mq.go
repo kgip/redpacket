@@ -51,7 +51,7 @@ var returnExpireRedPacketBalance = func(msg interface{}) {
 }
 
 func MQ() mq.MqOperator {
-	operator := &mq.LocalMQ{}
+	operator := mq.NewLocalMQ()
 	operator.AddQueue(constant.ReturnRedPacketBalanceTopic, 1000)
 
 	operator.RegistryMessageHandler([]string{constant.ReturnRedPacketBalanceTopic}, returnExpireRedPacketBalance)

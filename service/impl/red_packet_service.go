@@ -25,7 +25,7 @@ func (r *RedPacketService) SendPacket(vo *vo.SendPacketVo, id uint) {
 		var balance float64
 		if tx.Clauses(clause.Locking{Strength: "UPDATE"}).Model(po.UserModel).Select("balance").Where("id = ?", id).First(&balance); balance >= vo.Balance {
 			//2.扣减用户金额
-			ex.TryThrow(ex.HandleDbError(tx.Where("id = ? and balance >= ?", id, vo.Balance).Update("balance", gorm.Expr("balance - ?", vo.Balance))))
+			ex.TryThrow(ex.HandleDbError(tx.Model(po.UserModel).Where("id = ? and balance >= ?", id, vo.Balance).Update("balance", gorm.Expr("balance - ?", vo.Balance))))
 			//3.创建红包记录
 			redpacket := &po.RedPacket{
 				Amount:      vo.Balance,
@@ -51,6 +51,7 @@ func (*RedPacketService) addRedPacketToRedis(id, count uint, balance float64) {
 	key := fmt.Sprintf("%s%d", constant.RedPacketKeyPrefix, id)
 	redPackets := utils.GenericRedPackets(count, balance)
 	ex.TryThrow(global.Redis.RPush(context.Background(), key, redPackets...).Err())
+	global.Redis.Expire(context.Background(), key, constant.RedPacketExpireDuration)
 }
 
 func (r *RedPacketService) GrabPacket(id, userId uint) {
@@ -73,7 +74,7 @@ func (r *RedPacketService) GrabPacket(id, userId uint) {
 	ex.TryThrow(err)
 	var rpRecordCount int64
 	//防止redis记录删除失败，检查数据库中的红包记录看红包是否过期
-	if global.DB.Model(po.RedPacketModel).Where("id = ? and is_expire = ?", id, 0).Count(&rpRecordCount); rpRecordCount <= 0 {
+	if global.DB.Model(po.RedPacketModel).Where("id = ? and is_expire = ? and expire_at > ?", id, 0, time.Now()).Count(&rpRecordCount); rpRecordCount <= 0 {
 		panic(ex.PacketIsExpireException)
 	}
 	//保存红包记录，并转账给用户

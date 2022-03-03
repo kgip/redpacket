@@ -17,6 +17,9 @@ func TryThrow(params ...interface{}) {
 				panic(e)
 			}
 		}
+		if len(params) <= 1 {
+			panic(params[len(params)-1])
+		}
 	} else {
 		for _, param := range params {
 			if param == nil {
