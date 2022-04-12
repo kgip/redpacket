@@ -76,7 +76,7 @@ func TestEx(t *testing.T) {
 }
 
 func TestCopy(t *testing.T) {
-	user := &po.User{Base: po.Base{ID: 1, CreatedAt: time.Now()}, Username: "", Balance: 1111}
+	user := &po.User{Base: po.Base{ID: 1, CreatedAt: time.Now()}, Username: "", Balance: 1111, Age: 18}
 	userVo := &vo.UserVo{CreatedAt: common.JSONTime(user.CreatedAt)}
 	utils.BeanCopy(user, userVo, "CreatedAt")
 	t.Log(userVo)
